@@ -1,63 +1,106 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import Head from 'next/head';
 
 export default function Home() {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [marketData, setMarketData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // We will replace this with our backend URL later
+  const BACKEND_URL = 'https://your-backend-url.onrender.com';
+
+  useEffect(() => {
+    // Fetch market data on component mount
+    axios.get(`${BACKEND_URL}/api/market-data`)
+      .then(response => {
+        setMarketData(response.data.bitcoin);
+      })
+      .catch(error => {
+        console.error('Error fetching market data:', error);
+        // For now, we'll show a placeholder so the site doesn't look broken
+        setMarketData({ usd: 'Loading...', usd_24h_change: 0, usd_market_cap: 0, last_updated_at: Date.now() / 1000 });
+      });
+  }, []);
+
+  const handleAsk = async () => {
+    if (!question.trim()) return;
+    setIsLoading(true);
+    setAnswer('');
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question });
+      setAnswer(response.data.answer);
+    } catch (error) {
+      console.error('Error asking question:', error);
+      setAnswer('The backend is not connected yet. We will build this in the next phase.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+      <Head>
+        <title>Satoshi Oracle</title>
+        <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
+      </Head>
+
+      <main className="w-full max-w-2xl">
+        <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle</h1>
+        <p className="text-center text-gray-400 mb-8">Ask questions about Bitcoin, economics, and technology.</p>
+
+        {/* Market Data Dashboard */}
+        {marketData && (
+          <div className="bg-gray-800 p-6 rounded-lg mb-8 shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4">Market Data</h2>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-400">Price (USD)</p>
+                <p className="text-xl font-bold">${marketData.usd.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">24h Change</p>
+                <p className={`text-xl font-bold ${marketData.usd_24h_change > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {marketData.usd_24h_change.toFixed(2)}%
+                </p>
+              </div>
+               <div>
+                <p className="text-gray-400">Market Cap</p>
+                <p className="text-xl font-bold">${(marketData.usd_market_cap / 1e9).toFixed(2)}B</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Last Updated</p>
+                <p className="text-xl font-bold">{new Date(marketData.last_updated_at * 1000).toLocaleTimeString()}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Q&A Section */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <textarea
+            className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            rows="4"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="What is the halving?"
+          />
+          <button
+            onClick={handleAsk}
+            disabled={isLoading}
+            className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:bg-gray-600"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {isLoading ? 'Thinking...' : 'Ask the Oracle'}
+          </button>
+
+          {answer && (
+            <div className="mt-6 p-4 bg-gray-700 rounded-md">
+              <p className="whitespace-pre-wrap">{answer}</p>
+            </div>
+          )}
         </div>
       </main>
     </div>
