@@ -2,41 +2,45 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Head from 'next/head';
 
-export default function Home() {
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
-  // Define a type for our market data
+// Define a type for our market data
 type MarketData = {
   usd: number | string;
   usd_24h_change: number;
   usd_market_cap: number;
   last_updated_at: number;
 } | null;
-const [marketData, setMarketData] = useState<MarketData>(null);
+
+export default function Home() {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [marketData, setMarketData] = useState<MarketData>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // We will replace this with our backend URL later
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
   useEffect(() => {
-    // Fetch market data on component mount
     axios.get(`${BACKEND_URL}/api/market-data`)
       .then(response => {
         setMarketData(response.data.bitcoin);
       })
       .catch(error => {
         console.error('Error fetching market data:', error);
-        // For now, we'll show a placeholder so the site doesn't look broken
-        setMarketData({ usd: 'Loading...', usd_24h_change: 0, usd_market_cap: 0, last_updated_at: Date.now() / 1000 });
+        setMarketData({
+          usd: 'Loading...',
+          usd_24h_change: 0,
+          usd_market_cap: 0,
+          last_updated_at: Date.now() / 1000
+        });
       });
   }, []);
 
   const handleAsk = async () => {
     if (!question.trim()) return;
+
     setIsLoading(true);
     setAnswer('');
+
     try {
       const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question });
       setAnswer(response.data.answer);
@@ -50,10 +54,10 @@ const [marketData, setMarketData] = useState<MarketData>(null);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
-      <Head>
+      <head>
         <title>Satoshi Oracle</title>
         <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
-      </Head>
+      </head>
 
       <main className="w-full max-w-2xl">
         <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle</h1>
@@ -66,7 +70,9 @@ const [marketData, setMarketData] = useState<MarketData>(null);
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-400">Price (USD)</p>
-                <p className="text-xl font-bold">${marketData.usd.toLocaleString()}</p>
+                <p className="text-xl font-bold">
+                  ${typeof marketData.usd === 'number' ? marketData.usd.toLocaleString() : marketData.usd}
+                </p>
               </div>
               <div>
                 <p className="text-gray-400">24h Change</p>
@@ -74,7 +80,7 @@ const [marketData, setMarketData] = useState<MarketData>(null);
                   {marketData.usd_24h_change.toFixed(2)}%
                 </p>
               </div>
-               <div>
+              <div>
                 <p className="text-gray-400">Market Cap</p>
                 <p className="text-xl font-bold">${(marketData.usd_market_cap / 1e9).toFixed(2)}B</p>
               </div>
@@ -90,7 +96,7 @@ const [marketData, setMarketData] = useState<MarketData>(null);
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <textarea
             className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-            rows="4"
+            rows={4}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="What is the halving?"
