@@ -148,7 +148,19 @@ export default function Home() {
       </main>
     </div>
   );
-} </main>
+}{/* CoinGecko Attribution */}
+<p className="text-center text-gray-500 text-sm mt-8">
+  Data provided by{' '}
+  <a 
+    href="https://www.coingecko.com" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="text-orange-500 hover:underline"
+  >
+    CoinGecko
+  </a>
+</p>
+ </main>
     </div>
   );
 }
