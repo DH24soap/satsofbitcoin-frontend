@@ -19,61 +19,61 @@ export default function Home() {
 
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
- useEffect(() => {
-  // Use a flag to prevent state updates if the component unmounts
-  let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  const fetchData = async () => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/market-data`);
+        if (isMounted && response.data && response.data.bitcoin) {
+          setMarketData(response.data.bitcoin);
+        }
+      } catch (error) {
+        console.error('Error fetching market data:', error);
+        if (isMounted) {
+          setMarketData({
+            usd: 'Error loading data',
+            usd_24h_change: 0,
+            usd_market_cap: 0,
+            last_updated_at: Date.now() / 1000,
+          });
+        }
+      }
+    };
+
+    fetchData(); // Actually call the function!
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // handleAsk should be OUTSIDE of useEffect
+  const handleAsk = async () => {
+    if (!question.trim()) return;
+    setIsLoading(true);
+    setAnswer('');
+
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/market-data`);
-      // Only update state if the component is still mounted
-      if (isMounted && response.data && response.data.bitcoin) {
-        setMarketData(response.data.bitcoin);
+      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question });
+      if (response.data && response.data.answer) {
+        setAnswer(response.data.answer);
+      } else {
+        setAnswer('Received an unexpected response from the server.');
       }
-    } catch (error) {
-      console.error('Error fetching market data:', error);
-      // Only update state if the component is still mounted
-      if (isMounted) {
-        setMarketData({
-          usd: 'Error loading data',
-          usd_24h_change: 0,
-          usd_market_cap: 0,
-          last_updated_at: Date.now() / 1000,
-        });
+    } catch (error: any) {
+      console.error('Error asking question:', error);
+      if (error.response) {
+        setAnswer(`Server error: ${error.response.status}`);
+      } else if (error.request) {
+        setAnswer('Could not connect to the server. Please check your connection.');
+      } else {
+        setAnswer('An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
-
-
- const handleAsk = async () => {
-  if (!question.trim()) return;
-  setIsLoading(true);
-  setAnswer('');
-  try {
-    const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question });
-    // Check if the response contains the answer before setting it
-    if (response.data && response.data.answer) {
-      setAnswer(response.data.answer);
-    } else {
-      setAnswer('Received an unexpected response from the server.');
-    }
-  } catch (error) {
-    console.error('Error asking question:', error);
-    // Provide a more specific error message
-    if (error.response) {
-      // The server responded with a status code outside the 2xx range
-      setAnswer(`Server error: ${error.response.status}`);
-    } else if (error.request) {
-      // The request was made but no response was received
-      setAnswer('Could not connect to the server. Please check your connection.');
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      setAnswer('An unexpected error occurred. Please try again.');
-    }
-  } finally {
-    setIsLoading(false);
-  }
-};
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
@@ -138,29 +138,20 @@ export default function Home() {
             </div>
           )}
         </div>
-             {/* CoinGecko Credit */}
-        <p className="text-center text-gray-400 mt-8">
-          Market data provided by{' '}
-          <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline">
+
+        {/* CoinGecko Attribution */}
+        <p className="text-center text-gray-500 text-sm mt-8">
+          Data provided by{' '}
+          <a
+            href="https://www.coingecko.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange-500 hover:underline"
+          >
             CoinGecko
           </a>
         </p>
       </main>
-    </div>
-  );
-}{/* CoinGecko Attribution */}
-<p className="text-center text-gray-500 text-sm mt-8">
-  Data provided by{' '}
-  <a 
-    href="https://www.coingecko.com" 
-    target="_blank" 
-    rel="noopener noreferrer" 
-    className="text-orange-500 hover:underline"
-  >
-    CoinGecko
-  </a>
-</p>
- </main>
     </div>
   );
 }
