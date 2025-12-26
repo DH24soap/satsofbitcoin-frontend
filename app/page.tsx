@@ -13,7 +13,15 @@ interface MarketData {
 export default function Home() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
-  const [marketData, setMarketData] = useState(null);
+  // Define a type for our market data
+type MarketData = {
+  usd: number | string;
+  usd_24h_change: number;
+  usd_market_cap: number;
+  last_updated_at: number;
+} | null;
+
+const [marketData, setMarketData] = useState<MarketData>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // We will replace this with our backend URL later
