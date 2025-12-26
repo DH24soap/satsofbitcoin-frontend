@@ -3,7 +3,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
-
+// Define the type for marketData
+interface MarketData {
+  usd: number;
+  usd_24h_change: number;
+  usd_market_cap: number;
+  last_updated_at: number;
+}
 export default function Home() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
