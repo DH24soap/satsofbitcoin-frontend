@@ -17,7 +17,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   // We will replace this with our backend URL later
-  const BACKEND_URL = 'https://your-backend-url.onrender.com';
+  const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
   useEffect(() => {
     // Fetch market data on component mount
