@@ -41,14 +41,13 @@ export default function Home() {
       }
     };
 
-    fetchData(); // Actually call the function!
+    fetchData();
 
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // handleAsk should be OUTSIDE of useEffect
   const handleAsk = async () => {
     if (!question.trim()) return;
     setIsLoading(true);
@@ -72,6 +71,7 @@ export default function Home() {
       }
     } finally {
       setIsLoading(false);
+      setQuestion(''); // Clears the question box after response
     }
   };
 
@@ -141,7 +141,7 @@ export default function Home() {
 
         {/* CoinGecko Attribution */}
         <p className="text-center text-gray-500 text-sm mt-8">
-          Data provided by{' '}
+          Market data provided by{' '}
           <a
             href="https://www.coingecko.com"
             target="_blank"
