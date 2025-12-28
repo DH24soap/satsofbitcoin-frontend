@@ -1,5 +1,5 @@
 'use client';
-
+import DonationSection from './components/DonationSection';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -140,18 +140,17 @@ export default function Home() {
         </div>
 
         {/* CoinGecko Attribution */}
-        <p className="text-center text-gray-500 text-sm mt-8">
-          Market data provided by{' '}
-          <a
-            href="https://www.coingecko.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-orange-500 hover:underline"
-          >
-            CoinGecko
-          </a>
-        </p>
-      </main>
-    </div>
+<p className="text-center text-gray-500 text-sm mt-8">
+  Market data provided by{' '}
+  <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline">
+    CoinGecko
+  </a>
+</p>
+
+{/* Donation Section */}
+<DonationSection />
+
+</main>
+</div>
   );
 }
