@@ -128,7 +128,7 @@ export default function AssetCalculator() {
           )}
 
           <div className="mt-4 text-xs text-center text-gray-500">
-            Prices provided by Twelve Data. Not financial advice. Silver data may be unavailable on free plans.
+            Prices provided by Twelve Data & FCS API. Not financial advice.
           </div>
         </>
       )}
