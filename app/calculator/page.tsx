@@ -17,7 +17,7 @@ export default function CalculatorPage() {
           </Link>
           <a 
             href="/calculator" 
-            className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md cursor-default"
+            className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md cursor-default"
           >
             Calculator
           </a>
