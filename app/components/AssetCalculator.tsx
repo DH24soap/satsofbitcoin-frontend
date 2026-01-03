@@ -66,7 +66,6 @@ export default function AssetCalculator() {
   };
 
   return (
-    // --- UPDATED: Changed to dark theme to match the site ---
     <div className="p-6 border rounded-lg shadow-lg bg-gray-800 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">Asset Price Calculator</h2>
       
@@ -83,21 +82,20 @@ export default function AssetCalculator() {
                 value={usdInput}
                 onChange={(e) => setUsdInput(e.target.value)}
                 placeholder="Enter USD price"
-                // --- UPDATED: Dark theme input styles ---
-                className="w-full p-3 pl-8 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                // --- FIXED: Changed focus ring to orange ---
+                className="w-full p-3 pl-8 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
             <button
               onClick={handleCalculate}
-              // --- UPDATED: Changed button color to blue to stand out ---
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors"
+              // --- FIXED: Changed hover color to orange ---
+              className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors"
             >
               Calculate
             </button>
           </div>
 
           {results && (
-            // --- UPDATED: Dark theme results box ---
             <div className="space-y-4 text-sm bg-gray-700 p-4 rounded-md">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-300">Bitcoin (BTC):</span>
