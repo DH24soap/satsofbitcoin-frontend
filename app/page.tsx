@@ -1,4 +1,5 @@
 'use client';
+
 import DonationSection from './components/DonationSection';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -21,7 +22,6 @@ export default function Home() {
 
   useEffect(() => {
     let isMounted = true;
-
     const fetchData = async () => {
       try {
         const response = await axios.get(`${BACKEND_URL}/api/market-data`);
@@ -42,7 +42,6 @@ export default function Home() {
     };
 
     fetchData();
-
     return () => {
       isMounted = false;
     };
@@ -52,7 +51,6 @@ export default function Home() {
     if (!question.trim()) return;
     setIsLoading(true);
     setAnswer('');
-
     try {
       const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question });
       if (response.data && response.data.answer) {
@@ -81,8 +79,24 @@ export default function Home() {
         <title>Satoshi Oracle</title>
         <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
       </head>
-
       <main className="w-full max-w-2xl">
+        
+        {/* --- NEW NAVIGATION BAR --- */}
+        <nav className="flex justify-center space-x-8 mb-6 text-sm font-medium">
+          <a 
+            href="/" 
+            className="text-orange-500 hover:text-orange-400 transition-colors"
+          >
+            Oracle
+          </a>
+          <a 
+            href="/calculator" 
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            Calculator
+          </a>
+        </nav>
+
         <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle</h1>
         <p className="text-center text-gray-400 mb-8">Ask questions about Bitcoin, economics, and technology.</p>
 
@@ -93,15 +107,11 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-400">Price (USD)</p>
-                <p className="text-xl font-bold">
-                  ${typeof marketData.usd === 'number' ? marketData.usd.toLocaleString() : marketData.usd}
-                </p>
+                <p className="text-xl font-bold"> ${typeof marketData.usd === 'number' ? marketData.usd.toLocaleString() : marketData.usd} </p>
               </div>
               <div>
                 <p className="text-gray-400">24h Change</p>
-                <p className={`text-xl font-bold ${marketData.usd_24h_change > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {marketData.usd_24h_change.toFixed(2)}%
-                </p>
+                <p className={`text-xl font-bold ${marketData.usd_24h_change > 0 ? 'text-green-500' : 'text-red-500'}`}> {marketData.usd_24h_change.toFixed(2)}% </p>
               </div>
               <div>
                 <p className="text-gray-400">Market Cap</p>
@@ -131,7 +141,6 @@ export default function Home() {
           >
             {isLoading ? 'Thinking...' : 'Ask the Oracle'}
           </button>
-
           {answer && (
             <div className="mt-6 p-4 bg-gray-700 rounded-md">
               <p className="whitespace-pre-wrap">{answer}</p>
@@ -140,17 +149,16 @@ export default function Home() {
         </div>
 
         {/* CoinGecko Attribution */}
-<p className="text-center text-gray-500 text-sm mt-8">
-  Market data provided by{' '}
-  <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline">
-    CoinGecko
-  </a>
-</p>
+        <p className="text-center text-gray-500 text-sm mt-8">
+          Market data provided by{' '}
+          <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline">
+            CoinGecko
+          </a>
+        </p>
 
-{/* Donation Section */}
-<DonationSection />
-
-</main>
-</div>
+        {/* Donation Section */}
+        <DonationSection />
+      </main>
+    </div>
   );
 }
