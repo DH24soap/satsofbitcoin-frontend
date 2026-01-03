@@ -81,17 +81,17 @@ export default function Home() {
       </head>
       <main className="w-full max-w-2xl">
         
-        {/* --- NEW NAVIGATION BAR --- */}
-        <nav className="flex justify-center space-x-8 mb-6 text-sm font-medium">
+        {/* --- UPDATED NAVIGATION BAR --- */}
+        <nav className="flex justify-center space-x-4 mb-6">
           <a 
             href="/" 
-            className="text-orange-500 hover:text-orange-400 transition-colors"
+            className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors"
           >
             Oracle
           </a>
           <a 
             href="/calculator" 
-            className="text-gray-400 hover:text-white transition-colors"
+            className="px-4 py-2 bg-gray-700 text-gray-300 font-semibold rounded-md hover:bg-gray-600 hover:text-white transition-colors"
           >
             Calculator
           </a>
