@@ -81,7 +81,7 @@ export default function AssetCalculator() {
                 type="number"
                 value={usdInput}
                 onChange={(e) => setUsdInput(e.target.value)}
-                placeholder="Enter USD price"
+                placeholder="Enter USD amount for BTC, Gold, Silver equivalent"
                 // --- FIXED: Changed focus ring to orange ---
                 className="w-full p-3 pl-8 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
