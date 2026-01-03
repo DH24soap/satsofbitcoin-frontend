@@ -8,7 +8,7 @@ import axios from 'axios';
 interface AssetPrices {
   bitcoin: { usd: number };
   gold: { price_per_ounce_usd: number | null };
-  silver: { price_per_ounce_usd: number | null }; // Allow null for prices
+  silver: { price_per_ounce_usd: number | null };
 }
 
 export default function AssetCalculator() {
@@ -20,7 +20,6 @@ export default function AssetCalculator() {
 
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
-  // Fetch prices when the component mounts
   useEffect(() => {
     const fetchPrices = async () => {
       try {
@@ -34,7 +33,6 @@ export default function AssetCalculator() {
         setIsLoading(false);
       }
     };
-
     fetchPrices();
   }, []);
 
@@ -49,42 +47,26 @@ export default function AssetCalculator() {
     const silverPricePerOz = prices.silver.price_per_ounce_usd;
     const OUNCES_IN_GRAM = 31.1035;
 
+    // --- SIMPLIFIED AND SAFE CALCULATION LOGIC ---
     const newResults = {
       bitcoin: {
         btc: price / btcPrice,
         sats: (price / btcPrice) * 100000000,
       },
-      gold: {
-        // Check if gold price is available before calculating
-        ...(goldPricePerOz && {
-          ounces: price / goldPricePerOz,
-          grams: (price / goldPricePerOz) * OUNCES_IN_GRAM,
-        }),
-      },
-      silver: {
-        // Check if silver price is available before calculating
-        ...(silverPricePerOz && {
-          ounces: price / silverPricePerOz,
-          grams: (price / silverPricePerOz) * OUNCES_IN_GRAM,
-        }),
-      },
+      gold: (goldPricePerOz && goldPricePerOz > 0) ? { // Only include if price is valid
+        ounces: price / goldPricePerOz,
+        grams: (price / goldPricePerOz) * OUNCES_IN_GRAM,
+      } : null,
+      silver: (silverPricePerOz && silverPricePerOz > 0) ? { // Only include if price is valid
+        ounces: price / silverPricePerOz,
+        grams: (price / silverPricePerOz) * OUNCES_IN_GRAM,
+      } : null,
     };
 
     setResults(newResults);
   };
 
-  // Helper function to render results safely
-  const renderAssetValue = (asset: any, assetName: string) => {
-    if (!asset) {
-      return <span className="text-red-500">Price data unavailable for {assetName}</span>;
-    }
-    return (
-      <>
-        <span>{asset.ounces.toFixed(4)} oz / {asset.grams.toFixed(2)} g</span>
-      </>
-    );
-  };
-
+  // --- SIMPLIFIED AND SAFE RENDERING LOGIC ---
   return (
     <div className="p-6 border rounded-lg shadow-lg bg-white max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center">Asset Price Calculator</h2>
@@ -124,13 +106,25 @@ export default function AssetCalculator() {
                 <span>{results.bitcoin.sats.toLocaleString()} sats</span>
               </div>
               <hr className="my-2"/>
+              
+              {/* --- SAFE GOLD RENDERING --- */}
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-700">Gold:</span>
-                {renderAssetValue(results.gold, 'Gold')}
+                {results.gold ? (
+                  <span>{results.gold.ounces.toFixed(4)} oz / {results.gold.grams.toFixed(2)} g</span>
+                ) : (
+                  <span className="text-red-500">Price data unavailable for Gold</span>
+                )}
               </div>
+
+              {/* --- SAFE SILVER RENDERING --- */}
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-700">Silver:</span>
-                {renderAssetValue(results.silver, 'Silver')}
+                {results.silver ? (
+                  <span>{results.silver.ounces.toFixed(4)} oz / {results.silver.grams.toFixed(2)} g</span>
+                ) : (
+                  <span className="text-red-500">Price data unavailable for Silver</span>
+                )}
               </div>
             </div>
           )}
