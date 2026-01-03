@@ -7,8 +7,8 @@ import axios from 'axios';
 // Define the structure of the data we expect from the API
 interface AssetPrices {
   bitcoin: { usd: number };
-  gold: { price_per_ounce_usd: number };
-  silver: { price_per_ounce_usd: number };
+  gold: { price_per_ounce_usd: number | null };
+  silver: { price_per_ounce_usd: number | null }; // Allow null for prices
 }
 
 export default function AssetCalculator() {
@@ -18,12 +18,13 @@ export default function AssetCalculator() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
+
   // Fetch prices when the component mounts
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // IMPORTANT: Use a relative URL so it works in production and development
-        const response = await axios.get<AssetPrices>('/api/asset-prices');
+        const response = await axios.get<AssetPrices>(`${BACKEND_URL}/api/asset-prices`);
         setPrices(response.data);
         setError(null);
       } catch (err: any) {
@@ -46,8 +47,6 @@ export default function AssetCalculator() {
     const btcPrice = prices.bitcoin.usd;
     const goldPricePerOz = prices.gold.price_per_ounce_usd;
     const silverPricePerOz = prices.silver.price_per_ounce_usd;
-
-    // Constant for converting ounces to grams
     const OUNCES_IN_GRAM = 31.1035;
 
     const newResults = {
@@ -56,16 +55,34 @@ export default function AssetCalculator() {
         sats: (price / btcPrice) * 100000000,
       },
       gold: {
-        ounces: price / goldPricePerOz,
-        grams: (price / goldPricePerOz) * OUNCES_IN_GRAM,
+        // Check if gold price is available before calculating
+        ...(goldPricePerOz && {
+          ounces: price / goldPricePerOz,
+          grams: (price / goldPricePerOz) * OUNCES_IN_GRAM,
+        }),
       },
       silver: {
-        ounces: price / silverPricePerOz,
-        grams: (price / silverPricePerOz) * OUNCES_IN_GRAM,
+        // Check if silver price is available before calculating
+        ...(silverPricePerOz && {
+          ounces: price / silverPricePerOz,
+          grams: (price / silverPricePerOz) * OUNCES_IN_GRAM,
+        }),
       },
     };
 
     setResults(newResults);
+  };
+
+  // Helper function to render results safely
+  const renderAssetValue = (asset: any, assetName: string) => {
+    if (!asset) {
+      return <span className="text-red-500">Price data unavailable for {assetName}</span>;
+    }
+    return (
+      <>
+        <span>{asset.ounces.toFixed(4)} oz / {asset.grams.toFixed(2)} g</span>
+      </>
+    );
   };
 
   return (
@@ -109,17 +126,17 @@ export default function AssetCalculator() {
               <hr className="my-2"/>
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-700">Gold:</span>
-                <span>{results.gold.ounces.toFixed(4)} oz / {results.gold.grams.toFixed(2)} g</span>
+                {renderAssetValue(results.gold, 'Gold')}
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-700">Silver:</span>
-                <span>{results.silver.ounces.toFixed(4)} oz / {results.silver.grams.toFixed(2)} g</span>
+                {renderAssetValue(results.silver, 'Silver')}
               </div>
             </div>
           )}
 
           <div className="mt-4 text-xs text-center text-gray-400">
-            Prices provided by Twelve Data. Not financial advice.
+            Prices provided by Twelve Data. Not financial advice. Silver data may be unavailable on free plans.
           </div>
         </>
       )}
