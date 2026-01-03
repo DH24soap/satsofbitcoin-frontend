@@ -68,7 +68,7 @@ export default function AssetCalculator() {
   return (
     // --- UPDATED: Changed to dark theme to match the site ---
     <div className="p-6 border rounded-lg shadow-lg bg-gray-800 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-400">Asset Price Calculator</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">Asset Price Calculator</h2>
       
       {isLoading && <p className="text-center text-gray-400">Loading current market prices...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
