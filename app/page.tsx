@@ -47,9 +47,7 @@ export default function Home() {
     setAnswer('');
     try {
       // Send the 'mode' along with the prompt
-     const response = await axios.get('/api/market-data');
-
-      if (response.data && response.data.answer) {
+const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question, mode: mode });      if (response.data && response.data.answer) {
         setAnswer(response.data.answer);
       } else {
         setAnswer('Received an unexpected response from the server.');

@@ -1,4 +1,3 @@
-// app/api/market-data/route.ts
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -7,7 +6,6 @@ export async function GET() {
     const response = await fetch(backendUrl);
 
     if (!response.ok) {
-      // Forward the error from the backend if possible
       const errorData = await response.json();
       return NextResponse.json({ message: 'Failed to fetch from backend', error: errorData }, { status: response.status });
     }
