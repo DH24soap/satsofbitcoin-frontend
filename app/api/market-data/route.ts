@@ -1,19 +1,30 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  console.log('API ROUTE /api/market-data WAS CALLED!'); // This log is CRITICAL for debugging
+  console.log('API ROUTE /api/market-data WAS CALLED!');
+
+  const apiKey = process.env.COINGECKO_API_KEY;
+
+  if (!apiKey) {
+    console.error('CRITICAL: COINGECKO_API_KEY environment variable is not set!');
+    return NextResponse.json(
+      { error: 'Server configuration error: API key is missing.' }, 
+      { status: 500 }
+    );
+  }
 
   try {
-    // We will use the public demo key first to rule out environment variable issues.
-    const DEMO_API_KEY = 'CG-xV4Qa4hV4Qa4hV4Qa4hV4Qa4hV4Qa4hV4Qa'; // Replace with a real demo key from CoinGecko if this one is invalid
-    const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&x_cg_demo_api_key=${DEMO_API_KEY}`;
+    // The parameter for the API key has changed. Use the new one with dashes.
+    const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&x-cg-demo-api-key=${apiKey}`;
 
-    console.log('Fetching from CoinGecko...');
+    console.log(`Fetching from CoinGecko with URL: ${apiUrl}`);
 
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
       console.error(`CoinGecko API Error: ${response.status} ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error('Error response body:', errorBody);
       return NextResponse.json(
         { error: `CoinGecko API Error: ${response.status}` }, 
         { status: 500 }
