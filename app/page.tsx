@@ -156,7 +156,7 @@ export default function Home() {
             placeholder="What is the halving?"
             disabled={isLoading}
           />
-          
+
           {/* --- UPDATED BUTTON AND LOADING MESSAGE --- */}
           <button
             onClick={handleAsk}
