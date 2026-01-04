@@ -1,6 +1,8 @@
 'use client';
 
 import DonationSection from './components/DonationSection';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 // Define a type for our market data
 type MarketData = {
@@ -15,7 +17,7 @@ export default function Home() {
   const [answer, setAnswer] = useState('');
   const [marketData, setMarketData] = useState<MarketData>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [mode, setMode] = useState('oracle'); // NEW: State for the selected mode
+  const [mode, setMode] = useState('oracle'); // State for the selected mode
 
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
@@ -23,29 +25,41 @@ export default function Home() {
     let isMounted = true;
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/api/market-data`);
+        // Call the local API route on Vercel, not the backend directly.
+        const response = await axios.get('/api/market-data');
         if (isMounted && response.data && response.data.bitcoin) {
           setMarketData(response.data.bitcoin);
         }
       } catch (error) {
         console.error('Error fetching market data:', error);
         if (isMounted) {
-          setMarketData({ usd: 'Error loading data', usd_24h_change: 0, usd_market_cap: 0, last_updated_at: Date.now() / 1000, });
+          setMarketData({
+            usd: 'Error loading data',
+            usd_24h_change: 0,
+            usd_market_cap: 0,
+            last_updated_at: Date.now() / 1000,
+          });
         }
       }
     };
+
     fetchData();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // UPDATED: The function to handle the API call
+  // The function to handle the API call
   const handleAsk = async () => {
     if (!question.trim()) return;
     setIsLoading(true);
     setAnswer('');
     try {
-      // Send the 'mode' along with the prompt
-const response = await axios.get('/api/market-data');        setAnswer(response.data.answer);
+      // This is the CORRECT API call for asking a question
+      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question, mode: mode });
+
+      if (response.data && response.data.answer) {
+        setAnswer(response.data.answer);
       } else {
         setAnswer('Received an unexpected response from the server.');
       }
@@ -108,7 +122,7 @@ const response = await axios.get('/api/market-data');        setAnswer(response.
 
         {/* Q&A Section */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          {/* --- NEW MODE SELECTION UI --- */}
+          {/* --- MODE SELECTION UI --- */}
           <div className="flex justify-center mb-6 space-x-6">
             <label className="flex items-center text-gray-300 cursor-pointer">
               <input
