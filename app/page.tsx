@@ -47,7 +47,7 @@ export default function Home() {
     setAnswer('');
     try {
       // Send the 'mode' along with the prompt
-      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question, mode: mode });
+     const response = await axios.get('/api/market-data');
 
       if (response.data && response.data.answer) {
         setAnswer(response.data.answer);
@@ -135,7 +135,7 @@ export default function Home() {
                 onChange={(e) => setMode(e.target.value)}
                 className="mr-2 text-orange-500 focus:ring-orange-500"
               />
-              Satoshi's Perspective
+              Satoshi Nakamoto's Perspective
             </label>
           </div>
 
