@@ -21,11 +21,11 @@ export default function Home() {
 
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
-  useEffect(() => {
+useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
       try {
-        // Call the local API route on Vercel, not the backend directly.
+        // This is the CORRECT URL for the local Vercel API route.
         const response = await axios.get('/api/market-data');
         if (isMounted && response.data && response.data.bitcoin) {
           setMarketData(response.data.bitcoin);
