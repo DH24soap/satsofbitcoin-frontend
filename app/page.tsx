@@ -1,8 +1,6 @@
 'use client';
 
 import DonationSection from './components/DonationSection';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
 
 // Define a type for our market data
 type MarketData = {
