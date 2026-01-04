@@ -1,20 +1,24 @@
 import { NextResponse } from 'next/server';
 
+const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true';
+
 export async function GET() {
   try {
-    const backendUrl = 'https://satsofbitcoin-backend.onrender.com/api/market-data';
-    const response = await fetch(backendUrl);
-
+    const response = await fetch(COINGECKO_API_URL);
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json({ message: 'Failed to fetch from backend', error: errorData }, { status: response.status });
+      throw new Error(`CoinGecko API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    
+    return NextResponse.json({ bitcoin: data.bitcoin });
 
   } catch (error) {
-    console.error('Internal API route error:', error);
-    return NextResponse.json({ message: 'An internal server error occurred.' }, { status: 500 });
+    console.error('Error fetching market data in API route:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch market data' }, 
+      { status: 500 }
+    );
   }
 }
