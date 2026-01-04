@@ -17,6 +17,7 @@ export default function Home() {
   const [answer, setAnswer] = useState('');
   const [marketData, setMarketData] = useState<MarketData>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState('oracle'); // NEW: State for the selected mode
 
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
@@ -31,28 +32,23 @@ export default function Home() {
       } catch (error) {
         console.error('Error fetching market data:', error);
         if (isMounted) {
-          setMarketData({
-            usd: 'Error loading data',
-            usd_24h_change: 0,
-            usd_market_cap: 0,
-            last_updated_at: Date.now() / 1000,
-          });
+          setMarketData({ usd: 'Error loading data', usd_24h_change: 0, usd_market_cap: 0, last_updated_at: Date.now() / 1000, });
         }
       }
     };
-
     fetchData();
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
+  // UPDATED: The function to handle the API call
   const handleAsk = async () => {
     if (!question.trim()) return;
     setIsLoading(true);
     setAnswer('');
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question });
+      // Send the 'mode' along with the prompt
+      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question, mode: mode });
+
       if (response.data && response.data.answer) {
         setAnswer(response.data.answer);
       } else {
@@ -79,22 +75,12 @@ export default function Home() {
         <title>Satoshi Oracle</title>
         <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
       </head>
+
       <main className="w-full max-w-2xl">
-        
         {/* --- UPDATED NAVIGATION BAR --- */}
         <nav className="flex justify-center space-x-4 mb-6">
-          <a 
-            href="/" 
-            className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors"
-          >
-            Oracle
-          </a>
-          <a 
-            href="/calculator" 
-            className="px-4 py-2 bg-gray-700 text-gray-300 font-semibold rounded-md hover:bg-gray-600 hover:text-white transition-colors"
-          >
-            Calculator
-          </a>
+          <a href="/" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors" > Oracle </a>
+          <a href="/calculator" className="px-4 py-2 bg-gray-700 text-gray-300 font-semibold rounded-md hover:bg-gray-600 hover:text-white transition-colors" > Calculator </a>
         </nav>
 
         <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle</h1>
@@ -127,20 +113,60 @@ export default function Home() {
 
         {/* Q&A Section */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          {/* --- NEW MODE SELECTION UI --- */}
+          <div className="flex justify-center mb-6 space-x-6">
+            <label className="flex items-center text-gray-300 cursor-pointer">
+              <input
+                type="radio"
+                name="mode"
+                value="oracle"
+                checked={mode === 'oracle'}
+                onChange={(e) => setMode(e.target.value)}
+                className="mr-2 text-orange-500 focus:ring-orange-500"
+              />
+              Oracle Mode
+            </label>
+            <label className="flex items-center text-orange-500 cursor-pointer">
+              <input
+                type="radio"
+                name="mode"
+                value="satoshi"
+                checked={mode === 'satoshi'}
+                onChange={(e) => setMode(e.target.value)}
+                className="mr-2 text-orange-500 focus:ring-orange-500"
+              />
+              Satoshi's Perspective
+            </label>
+          </div>
+
           <textarea
             className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             rows={4}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="What is the halving?"
+            disabled={isLoading}
           />
+          
+          {/* --- UPDATED BUTTON AND LOADING MESSAGE --- */}
           <button
             onClick={handleAsk}
             disabled={isLoading}
             className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:bg-gray-600"
           >
-            {isLoading ? 'Thinking...' : 'Ask the Oracle'}
+            {isLoading ? (
+              mode === 'satoshi' ? 'Consulting Satoshi...' : 'Thinking...'
+            ) : (
+              'Ask the Oracle'
+            )}
           </button>
+
+          {isLoading && mode === 'satoshi' && (
+            <p className="text-center text-sm text-gray-400 mt-2 animate-pulse">
+              Connecting to the original node... This may take a moment for a deeper response.
+            </p>
+          )}
+
           {answer && (
             <div className="mt-6 p-4 bg-gray-700 rounded-md">
               <p className="whitespace-pre-wrap">{answer}</p>
