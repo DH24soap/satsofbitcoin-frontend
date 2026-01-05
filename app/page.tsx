@@ -1,5 +1,4 @@
 'use client';
-
 import DonationSection from './components/DonationSection';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -27,6 +26,10 @@ export default function Home() {
       try {
         // This is the CORRECT URL for the local Vercel API route.
         const response = await axios.get('/api/market-data');
+
+        // --- DIAGNOSTIC LOG: Added to see the raw data from the API ---
+        console.log('RAW MARKET DATA FROM API:', response.data);
+
         if (isMounted && response.data && response.data.bitcoin) {
           setMarketData(response.data.bitcoin);
         }
@@ -56,8 +59,10 @@ export default function Home() {
     setAnswer('');
     try {
       // This is the CORRECT API call for asking a question
-      const response = await axios.post(`${BACKEND_URL}/api/ask`, { prompt: question, mode: mode });
-
+      const response = await axios.post(`${BACKEND_URL}/api/ask`, {
+        prompt: question,
+        mode: mode,
+      });
       if (response.data && response.data.answer) {
         setAnswer(response.data.answer);
       } else {
@@ -78,21 +83,62 @@ export default function Home() {
     }
   };
 
+  // --- UPDATED HELPER FUNCTION FOR THE DATE ---
+  const formatLastUpdated = (timestamp: number | null | undefined) => {
+    // --- DIAGNOSTIC LOG: Log the exact timestamp being passed to the function ---
+    console.log('Timestamp received by formatLastUpdated:', timestamp, 'Type:', typeof timestamp);
+
+    if (timestamp === null || timestamp === undefined) {
+      console.error('Timestamp is null or undefined.');
+      return 'N/A';
+    }
+
+    // Ensure it's a finite number before proceeding
+    if (typeof timestamp !== 'number' || !isFinite(timestamp)) {
+      console.error('Timestamp is not a valid finite number.');
+      return 'Invalid Data';
+    }
+
+    try {
+      // The core fix: ensure it's a number before multiplying
+      const date = new Date(Math.floor(timestamp) * 1000);
+
+      // Check if the date is valid after creation
+      if (isNaN(date.getTime())) {
+        console.error('Date object is invalid after creation from timestamp:', timestamp);
+        return 'Invalid Date';
+      }
+
+      return date.toLocaleTimeString();
+    } catch (e) {
+      console.error('Error formatting date:', e);
+      return 'Error';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
       <head>
-        <title>Satoshi Oracle v2</title>
+        <title>Satoshi Oracle v3</title>
         <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
       </head>
-
       <main className="w-full max-w-2xl">
         {/* --- UPDATED NAVIGATION BAR --- */}
         <nav className="flex justify-center space-x-4 mb-6">
-          <a href="/" className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors" > Oracle </a>
-          <a href="/calculator" className="px-4 py-2 bg-gray-700 text-gray-300 font-semibold rounded-md hover:bg-gray-600 hover:text-white transition-colors" > Calculator </a>
+          <a
+            href="/"
+            className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors"
+          >
+            Oracle
+          </a>
+          <a
+            href="/calculator"
+            className="px-4 py-2 bg-gray-700 text-gray-300 font-semibold rounded-md hover:bg-gray-600 hover:text-white transition-colors"
+          >
+            Calculator
+          </a>
         </nav>
-
-        <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle</h1>
+        <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle v3</h1>
         <p className="text-center text-gray-400 mb-8">Ask questions about Bitcoin, economics, and technology.</p>
 
         {/* Market Data Dashboard */}
@@ -102,11 +148,15 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-400">Price (USD)</p>
-                <p className="text-xl font-bold"> ${typeof marketData.usd === 'number' ? marketData.usd.toLocaleString() : marketData.usd} </p>
+                <p className="text-xl font-bold">
+                  ${typeof marketData.usd === 'number' ? marketData.usd.toLocaleString() : marketData.usd}
+                </p>
               </div>
               <div>
                 <p className="text-gray-400">24h Change</p>
-                <p className={`text-xl font-bold ${marketData.usd_24h_change > 0 ? 'text-green-500' : 'text-red-500'}`}> {marketData.usd_24h_change.toFixed(2)}% </p>
+                <p className={`text-xl font-bold ${marketData.usd_24h_change > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {marketData.usd_24h_change.toFixed(2)}%
+                </p>
               </div>
               <div>
                 <p className="text-gray-400">Market Cap</p>
@@ -114,7 +164,8 @@ export default function Home() {
               </div>
               <div>
                 <p className="text-gray-400">Last Updated</p>
-                <p className="text-xl font-bold">{new Date(Math.floor(marketData.last_updated_at) * 1000).toLocaleTimeString()}</p>
+                {/* --- USING THE UPDATED HELPER FUNCTION --- */}
+                <p className="text-xl font-bold">{formatLastUpdated(marketData.last_updated_at)}</p>
               </div>
             </div>
           </div>
@@ -163,13 +214,8 @@ export default function Home() {
             disabled={isLoading}
             className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:bg-gray-600"
           >
-            {isLoading ? (
-              mode === 'satoshi' ? 'Consulting Satoshi...' : 'Thinking...'
-            ) : (
-              'Ask the Oracle'
-            )}
+            {isLoading ? (mode === 'satoshi' ? 'Consulting Satoshi...' : 'Thinking...') : 'Ask the Oracle'}
           </button>
-
           {isLoading && mode === 'satoshi' && (
             <p className="text-center text-sm text-gray-400 mt-2 animate-pulse">
               Connecting to the original node... This may take a moment for a deeper response.
