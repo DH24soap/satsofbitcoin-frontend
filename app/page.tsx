@@ -21,7 +21,7 @@ export default function Home() {
 
   const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
 
-useEffect(() => {
+  useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
       try {
@@ -114,7 +114,7 @@ useEffect(() => {
               </div>
               <div>
                 <p className="text-gray-400">Last Updated</p>
-                <p className="text-xl font-bold">{new Date(marketData.last_updated_at * 1000).toLocaleTimeString()}</p>
+                <p className="text-xl font-bold">{new Date(Math.floor(marketData.last_updated_at) * 1000).toLocaleTimeString()}</p>
               </div>
             </div>
           </div>
