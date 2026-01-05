@@ -119,7 +119,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
       <head>
-        <title>Satoshi Oracle v3</title>
+        <title>Satoshi Oracle</title>
         <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
       </head>
       <main className="w-full max-w-2xl">
