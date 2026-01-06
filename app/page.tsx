@@ -138,7 +138,7 @@ export default function Home() {
             Calculator
           </a>
         </nav>
-        <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle v3</h1>
+        <h1 className="text-5xl font-bold text-center mb-2 text-orange-500">Satoshi Oracle</h1>
         <p className="text-center text-gray-400 mb-8">Ask questions about Bitcoin, economics, and technology.</p>
 
         {/* Market Data Dashboard */}
