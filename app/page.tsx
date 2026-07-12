@@ -18,7 +18,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState('oracle'); // State for the selected mode
 
-  const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
+  const BACKEND_URL = 'https://api.satsofbitcoin.com';
 
   useEffect(() => {
     let isMounted = true;

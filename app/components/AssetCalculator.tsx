@@ -18,7 +18,7 @@ export default function AssetCalculator() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const BACKEND_URL = 'https://satsofbitcoin-backend.onrender.com';
+  const BACKEND_URL = 'https://api.satsofbitcoin.com';
 
   useEffect(() => {
     const fetchPrices = async () => {
