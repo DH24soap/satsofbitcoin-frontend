@@ -3,6 +3,13 @@
 import { LANGUAGES } from '@/lib/i18n/languages';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
+const TIER_LABELS: Record<1 | 2 | 3 | 4, string> = {
+  1: 'Tier 1',
+  2: 'Tier 2',
+  3: 'Tier 3',
+  4: 'Tier 4',
+};
+
 export default function LanguageSwitcher() {
   const { language, setLanguage, t, languageMeta } = useLanguage();
 
@@ -20,13 +27,17 @@ export default function LanguageSwitcher() {
           value={language}
           onChange={(e) => setLanguage(e.target.value as typeof language)}
           aria-label={t('selectLanguage')}
-          className="min-w-[12rem] max-w-full bg-gray-800 border border-gray-600 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="min-w-[14rem] max-w-[min(100%,20rem)] bg-gray-800 border border-gray-600 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           dir={languageMeta.dir}
         >
-          {LANGUAGES.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.flag} {lang.nativeName}
-            </option>
+          {([1, 2, 3, 4] as const).map((tier) => (
+            <optgroup key={tier} label={TIER_LABELS[tier]}>
+              {LANGUAGES.filter((lang) => lang.tier === tier).map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.flag} {lang.nativeName}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>

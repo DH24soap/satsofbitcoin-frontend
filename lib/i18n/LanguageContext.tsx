@@ -14,6 +14,7 @@ import {
   getLanguage,
   isLanguageCode,
   LANGUAGE_STORAGE_KEY,
+  resolveBrowserLanguage,
   type LanguageCode,
   type LanguageOption,
 } from './languages';
@@ -32,8 +33,8 @@ function detectBrowserLanguage(): LanguageCode {
   if (typeof navigator === 'undefined') return DEFAULT_LANGUAGE;
   const candidates = [navigator.language, ...(navigator.languages ?? [])];
   for (const raw of candidates) {
-    const base = raw.toLowerCase().split('-')[0];
-    if (isLanguageCode(base)) return base;
+    const resolved = resolveBrowserLanguage(raw);
+    if (resolved) return resolved;
   }
   return DEFAULT_LANGUAGE;
 }
