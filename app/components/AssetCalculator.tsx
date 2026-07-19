@@ -18,15 +18,13 @@ export default function AssetCalculator() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const BACKEND_URL = 'https://api.satsofbitcoin.com';
-
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const response = await axios.get<AssetPrices>(`${BACKEND_URL}/api/asset-prices`);
+        const response = await axios.get<AssetPrices>('/api/asset-prices');
         setPrices(response.data);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch asset prices:', err);
         setError('Could not load live prices. Please try again later.');
       } finally {

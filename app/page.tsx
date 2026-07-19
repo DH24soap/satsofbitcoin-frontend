@@ -18,17 +18,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState('oracle'); // State for the selected mode
 
-  const BACKEND_URL = 'https://api.satsofbitcoin.com';
-
   useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
       try {
-        // This is the CORRECT URL for the local Vercel API route.
         const response = await axios.get('/api/market-data');
-
-        // --- DIAGNOSTIC LOG: Added to see the raw data from the API ---
-        console.log('RAW MARKET DATA FROM API:', response.data);
 
         if (isMounted && response.data && response.data.bitcoin) {
           setMarketData(response.data.bitcoin);
@@ -52,14 +46,12 @@ export default function Home() {
     };
   }, []);
 
-  // The function to handle the API call
   const handleAsk = async () => {
     if (!question.trim()) return;
     setIsLoading(true);
     setAnswer('');
     try {
-      // This is the CORRECT API call for asking a question
-      const response = await axios.post(`${BACKEND_URL}/api/ask`, {
+      const response = await axios.post('/api/ask', {
         prompt: question,
         mode: mode,
       });
@@ -79,51 +71,33 @@ export default function Home() {
       }
     } finally {
       setIsLoading(false);
-      setQuestion(''); // Clears the question box after response
+      setQuestion('');
     }
   };
 
-  // --- UPDATED HELPER FUNCTION FOR THE DATE ---
   const formatLastUpdated = (timestamp: number | null | undefined) => {
-    // --- DIAGNOSTIC LOG: Log the exact timestamp being passed to the function ---
-    console.log('Timestamp received by formatLastUpdated:', timestamp, 'Type:', typeof timestamp);
-
     if (timestamp === null || timestamp === undefined) {
-      console.error('Timestamp is null or undefined.');
       return 'N/A';
     }
 
-    // Ensure it's a finite number before proceeding
     if (typeof timestamp !== 'number' || !isFinite(timestamp)) {
-      console.error('Timestamp is not a valid finite number.');
       return 'Invalid Data';
     }
 
     try {
-      // The core fix: ensure it's a number before multiplying
       const date = new Date(Math.floor(timestamp) * 1000);
-
-      // Check if the date is valid after creation
       if (isNaN(date.getTime())) {
-        console.error('Date object is invalid after creation from timestamp:', timestamp);
         return 'Invalid Date';
       }
-
       return date.toLocaleTimeString();
-    } catch (e) {
-      console.error('Error formatting date:', e);
+    } catch {
       return 'Error';
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
-      <head>
-        <title>Satoshi Oracle</title>
-        <meta name="description" content="Ask the Satoshi Oracle anything about Bitcoin." />
-      </head>
       <main className="w-full max-w-2xl">
-        {/* --- UPDATED NAVIGATION BAR --- */}
         <nav className="flex justify-center space-x-4 mb-6">
           <a
             href="/"
