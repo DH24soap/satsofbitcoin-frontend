@@ -26,7 +26,7 @@ export default function VenicePromo() {
         className="mt-5 group inline-flex flex-col items-center gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
         aria-label={t('veniceVisit')}
       >
-        <span className="rounded-xl bg-white p-3 shadow-lg border border-gray-200 transition-transform group-hover:scale-[1.02]">
+        <span className="inline-flex rounded-lg border border-white p-0.5 transition-transform group-hover:scale-[1.02]">
           {/*
             Official logo: save as public/venice-logo.png
             Fallback placeholder: public/venice-logo.svg
@@ -36,7 +36,7 @@ export default function VenicePromo() {
             alt="Venice AI"
             width={220}
             height={120}
-            className="h-auto w-[200px] max-w-full object-contain"
+            className="h-auto w-[200px] max-w-full object-contain rounded-md"
             onError={(e) => {
               const img = e.currentTarget;
               if (!img.src.includes('venice-logo.svg')) {
