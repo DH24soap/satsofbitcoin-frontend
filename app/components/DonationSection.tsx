@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function DonationSection() {
-  const lightningAddress = "lnbc1p54q70app580en3ajuzhtcjl8hvtpknqqsh6kag2rth5g9clpgd2cm49rt5unqdqqcqzzsxqrrs0fppqcumkkpfeyufk2a4ygdvww3yddkd226zesp5uulr233alwt0nv0cx2grs5mhgkyxx3n5hdfud5z4guyvxy5qydhs9qxpqysgqacz2g5hmd5ht4a27wurdsj7x09ee4w3kp3n9g68r7jx5p4nwadlnnan6n6n9swqz9np8mu2ee7gmekzr3u0yxx2hy8p3vqvlrydq5kcp6jnuvn";
+  const { t } = useLanguage();
+  const lightningAddress =
+    'lnbc1p54q70app580en3ajuzhtcjl8hvtpknqqsh6kag2rth5g9clpgd2cm49rt5unqdqqcqzzsxqrrs0fppqcumkkpfeyufk2a4ygdvww3yddkd226zesp5uulr233alwt0nv0cx2grs5mhgkyxx3n5hdfud5z4guyvxy5qydhs9qxpqysgqacz2g5hmd5ht4a27wurdsj7x09ee4w3kp3n9g68r7jx5p4nwadlnnan6n6n9swqz9np8mu2ee7gmekzr3u0yxx2hy8p3vqvlrydq5kcp6jnuvn';
 
   const [isCopied, setIsCopied] = useState(false);
 
@@ -19,15 +22,13 @@ export default function DonationSection() {
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg mt-8 shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Support the Oracle</h2>
-      <p className="text-gray-400 text-center mb-6">
-        Enjoying the Satoshi Oracle? Consider a small donation to keep it running.
-      </p>
+      <h2 className="text-2xl font-semibold mb-4 text-center">{t('supportTitle')}</h2>
+      <p className="text-gray-400 text-center mb-6">{t('supportBody')}</p>
 
       <div className="flex flex-col items-center space-y-4">
         <img
           src="/lightning-qr.png"
-          alt="Lightning Donation QR Code"
+          alt={t('qrAlt')}
           className="w-48 h-48 bg-white p-2 rounded-lg"
         />
 
@@ -43,7 +44,7 @@ export default function DonationSection() {
               onClick={handleCopy}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 text-sm"
             >
-              {isCopied ? 'Copied!' : 'Copy'}
+              {isCopied ? t('copied') : t('copy')}
             </button>
           </div>
         </div>

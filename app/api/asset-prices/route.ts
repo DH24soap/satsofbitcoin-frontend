@@ -1,26 +1,54 @@
 import { NextResponse } from 'next/server';
 
+function parseNumber(value: unknown): number | null {
+  const n = typeof value === 'number' ? value : parseFloat(String(value ?? ''));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+async function fetchTwelvePrice(symbol: string, apiKey: string): Promise<number | null> {
+  try {
+    const url = `https://api.twelvedata.com/price?symbol=${encodeURIComponent(symbol)}&apikey=${apiKey}`;
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data.status === 'error') {
+      console.error(`Twelve Data error for ${symbol}:`, data.message ?? data);
+      return null;
+    }
+
+    return parseNumber(data.price);
+  } catch (error) {
+    console.error(`Twelve Data fetch failed for ${symbol}:`, error);
+    return null;
+  }
+}
+
 async function fetchSilverFromFcs(apiKey?: string): Promise<number | null> {
   if (!apiKey) return null;
 
   try {
     const fcsUrl = `https://fcsapi.com/api-v3/forex/latest?symbol=XAG/USD&access_key=${apiKey}`;
     const fcsResponse = await fetch(fcsUrl, { cache: 'no-store' });
-    if (!fcsResponse.ok) return null;
+    if (!fcsResponse.ok) {
+      console.error('FCSAPI HTTP error:', fcsResponse.status);
+      return null;
+    }
 
     const fcsData = await fcsResponse.json();
+    console.error('FCSAPI silver raw:', JSON.stringify(fcsData).slice(0, 500));
 
-    // FCSAPI shapes vary by plan/version — handle a few common ones.
     if (fcsData.status === true && Array.isArray(fcsData.response) && fcsData.response.length > 0) {
       const row = fcsData.response[0];
-      const price = parseFloat(row.c ?? row.close ?? row.price);
-      return Number.isFinite(price) ? price : null;
+      return parseNumber(row.c ?? row.close ?? row.price ?? row.o);
     }
 
     if (fcsData.response && typeof fcsData.response === 'object' && !Array.isArray(fcsData.response)) {
-      const row = fcsData.response['XAG/USD'] ?? fcsData.response;
-      const price = parseFloat(row?.c ?? row?.close ?? row?.price);
-      return Number.isFinite(price) ? price : null;
+      const row = fcsData.response['XAG/USD'] ?? Object.values(fcsData.response)[0];
+      if (row && typeof row === 'object') {
+        const r = row as Record<string, unknown>;
+        return parseNumber(r.c ?? r.close ?? r.price ?? r.o);
+      }
     }
 
     return null;
@@ -28,6 +56,109 @@ async function fetchSilverFromFcs(apiKey?: string): Promise<number | null> {
     console.error('FCSAPI silver fetch failed:', error);
     return null;
   }
+}
+
+/** Free public gold/silver feed used by many sites (no API key). */
+async function fetchSilverFromGoldPriceOrg(): Promise<number | null> {
+  try {
+    const response = await fetch('https://data-asg.goldprice.org/dbXRates/USD', {
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; satsofbitcoin/1.0)',
+      },
+    });
+    if (!response.ok) {
+      console.error('goldprice.org HTTP error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const item = Array.isArray(data?.items) ? data.items[0] : null;
+    return parseNumber(item?.xagPrice);
+  } catch (error) {
+    console.error('goldprice.org silver fetch failed:', error);
+    return null;
+  }
+}
+
+/** Free fallback via Yahoo chart API. */
+async function fetchSilverFromYahoo(): Promise<number | null> {
+  const symbols = ['SI=F', 'XAGUSD=X', 'SLV'];
+
+  for (const symbol of symbols) {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        console.error(`Yahoo HTTP error for ${symbol}:`, response.status);
+        continue;
+      }
+
+      const data = await response.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+      const quote = data?.chart?.result?.[0]?.indicators?.quote?.[0];
+      const closes: unknown[] = Array.isArray(quote?.close) ? quote.close : [];
+      const lastClose = [...closes].reverse().find((v) => parseNumber(v) !== null);
+
+      const price =
+        parseNumber(meta?.regularMarketPrice) ??
+        parseNumber(meta?.previousClose) ??
+        parseNumber(lastClose);
+
+      if (price !== null) return price;
+    } catch (error) {
+      console.error(`Yahoo silver fetch failed for ${symbol}:`, error);
+    }
+  }
+
+  return null;
+}
+
+/** Stooq free CSV quote. */
+async function fetchSilverFromStooq(): Promise<number | null> {
+  try {
+    const response = await fetch('https://stooq.com/q/l/?s=xagusd&f=sd2t2ohlcv&h&e=csv', {
+      cache: 'no-store',
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; satsofbitcoin/1.0)' },
+    });
+    if (!response.ok) return null;
+
+    const text = await response.text();
+    // CSV: Symbol,Date,Time,Open,High,Low,Close,Volume
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return null;
+    const cols = lines[1].split(',');
+    // Close is typically index 6
+    return parseNumber(cols[6] ?? cols[3]);
+  } catch (error) {
+    console.error('Stooq silver fetch failed:', error);
+    return null;
+  }
+}
+
+async function fetchSilverPrice(twelveDataKey: string, fcsApiKey?: string): Promise<number | null> {
+  for (const symbol of ['XAG/USD', 'XAGUSD', 'SILVER']) {
+    const price = await fetchTwelvePrice(symbol, twelveDataKey);
+    if (price !== null) return price;
+  }
+
+  const fromFcs = await fetchSilverFromFcs(fcsApiKey);
+  if (fromFcs !== null) return fromFcs;
+
+  const fromGoldPrice = await fetchSilverFromGoldPriceOrg();
+  if (fromGoldPrice !== null) return fromGoldPrice;
+
+  const fromYahoo = await fetchSilverFromYahoo();
+  if (fromYahoo !== null) return fromYahoo;
+
+  return fetchSilverFromStooq();
 }
 
 export async function GET() {
@@ -42,48 +173,24 @@ export async function GET() {
       );
     }
 
-    // Prefer Twelve Data for BTC, gold, and silver (more reliable from Workers).
-    const twelveDataSymbols = 'BTC/USD,XAU/USD,XAG/USD';
-    const twelveDataUrl = `https://api.twelvedata.com/price?symbol=${twelveDataSymbols}&apikey=${twelveDataKey}`;
-    const twelveResponse = await fetch(twelveDataUrl, { cache: 'no-store' });
-    const twelveData = await twelveResponse.json();
+    const [btcPrice, goldPrice, silverPrice] = await Promise.all([
+      fetchTwelvePrice('BTC/USD', twelveDataKey),
+      fetchTwelvePrice('XAU/USD', twelveDataKey),
+      fetchSilverPrice(twelveDataKey, fcsApiKey),
+    ]);
 
-    if (twelveData.status && twelveData.status === 'error') {
-      console.error('Twelve Data API Error:', twelveData.message);
-      return NextResponse.json(
-        { error: 'Failed to fetch data from Twelve Data.' },
-        { status: 500 }
-      );
-    }
-
-    const btcPrice = parseFloat(twelveData['BTC/USD']?.price);
-    const goldPrice = parseFloat(twelveData['XAU/USD']?.price);
-    let silverPrice = parseFloat(twelveData['XAG/USD']?.price);
-
-    if (!Number.isFinite(silverPrice)) {
-      silverPrice = (await fetchSilverFromFcs(fcsApiKey)) ?? NaN;
-    }
-
-    const prices = {
-      bitcoin: {
-        usd: Number.isFinite(btcPrice) ? btcPrice : null,
-      },
-      gold: {
-        price_per_ounce_usd: Number.isFinite(goldPrice) ? goldPrice : null,
-      },
-      silver: {
-        price_per_ounce_usd: Number.isFinite(silverPrice) ? silverPrice : null,
-      },
-    };
-
-    if (prices.bitcoin.usd === null) {
+    if (btcPrice === null) {
       return NextResponse.json(
         { error: 'Failed to fetch Bitcoin price.' },
         { status: 502 }
       );
     }
 
-    return NextResponse.json(prices);
+    return NextResponse.json({
+      bitcoin: { usd: btcPrice },
+      gold: { price_per_ounce_usd: goldPrice },
+      silver: { price_per_ounce_usd: silverPrice },
+    });
   } catch (error) {
     console.error('Error in /api/asset-prices:', error);
     return NextResponse.json(

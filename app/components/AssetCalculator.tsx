@@ -1,20 +1,26 @@
-// app/components/AssetCalculator.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-// Define the structure of the data we expect from the API
 interface AssetPrices {
   bitcoin: { usd: number };
   gold: { price_per_ounce_usd: number | null };
   silver: { price_per_ounce_usd: number | null };
 }
 
+type CalcResults = {
+  bitcoin: { btc: number; sats: number };
+  gold: { ounces: number; grams: number } | null;
+  silver: { ounces: number; grams: number } | null;
+};
+
 export default function AssetCalculator() {
+  const { t, languageMeta } = useLanguage();
   const [prices, setPrices] = useState<AssetPrices | null>(null);
   const [usdInput, setUsdInput] = useState<string>('');
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<CalcResults | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,13 +32,13 @@ export default function AssetCalculator() {
         setError(null);
       } catch (err: unknown) {
         console.error('Failed to fetch asset prices:', err);
-        setError('Could not load live prices. Please try again later.');
+        setError(t('loadPricesError'));
       } finally {
         setIsLoading(false);
       }
     };
     fetchPrices();
-  }, []);
+  }, [t]);
 
   const handleCalculate = () => {
     if (!prices || !usdInput || isNaN(Number(usdInput))) {
@@ -45,19 +51,25 @@ export default function AssetCalculator() {
     const silverPricePerOz = prices.silver.price_per_ounce_usd;
     const OUNCES_IN_GRAM = 31.1035;
 
-    const newResults = {
+    const newResults: CalcResults = {
       bitcoin: {
         btc: price / btcPrice,
         sats: (price / btcPrice) * 100000000,
       },
-      gold: (goldPricePerOz && goldPricePerOz > 0) ? {
-        ounces: price / goldPricePerOz,
-        grams: (price / goldPricePerOz) * OUNCES_IN_GRAM,
-      } : null,
-      silver: (silverPricePerOz && silverPricePerOz > 0) ? {
-        ounces: price / silverPricePerOz,
-        grams: (price / silverPricePerOz) * OUNCES_IN_GRAM,
-      } : null,
+      gold:
+        goldPricePerOz && goldPricePerOz > 0
+          ? {
+              ounces: price / goldPricePerOz,
+              grams: (price / goldPricePerOz) * OUNCES_IN_GRAM,
+            }
+          : null,
+      silver:
+        silverPricePerOz && silverPricePerOz > 0
+          ? {
+              ounces: price / silverPricePerOz,
+              grams: (price / silverPricePerOz) * OUNCES_IN_GRAM,
+            }
+          : null,
     };
 
     setResults(newResults);
@@ -65,69 +77,77 @@ export default function AssetCalculator() {
 
   return (
     <div className="p-6 border rounded-lg shadow-lg bg-gray-800 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">Asset Price Calculator</h2>
-      
-      {isLoading && <p className="text-center text-gray-400">Loading current market prices...</p>}
+      <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">
+        {t('calculatorTitle')}
+      </h2>
+
+      {isLoading && <p className="text-center text-gray-400">{t('loadingPrices')}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!isLoading && !error && (
         <>
           <div className="flex gap-3 mb-6">
             <div className="relative flex-grow">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                $
+              </span>
               <input
                 type="number"
                 value={usdInput}
                 onChange={(e) => setUsdInput(e.target.value)}
-                placeholder="Enter USD amount for BTC, Gold, Silver equivalent"
-                // --- FIXED: Changed focus ring to orange ---
+                placeholder={t('usdPlaceholder')}
                 className="w-full p-3 pl-8 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                dir={languageMeta.dir}
               />
             </div>
             <button
               onClick={handleCalculate}
-              // --- FIXED: Changed hover color to orange ---
               className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors"
             >
-              Calculate
+              {t('calculate')}
             </button>
           </div>
 
           {results && (
             <div className="space-y-4 text-sm bg-gray-700 p-4 rounded-md">
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-300">Bitcoin (BTC):</span>
+              <div className="flex justify-between gap-4">
+                <span className="font-semibold text-gray-300">{t('bitcoinBtc')}</span>
                 <span>{results.bitcoin.btc.toFixed(6)} BTC</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-300">Bitcoin (Sats):</span>
-                <span>{results.bitcoin.sats.toLocaleString()} sats</span>
+              <div className="flex justify-between gap-4">
+                <span className="font-semibold text-gray-300">{t('bitcoinSats')}</span>
+                <span>
+                  {results.bitcoin.sats.toLocaleString(languageMeta.locale)} sats
+                </span>
               </div>
-              <hr className="my-2 border-gray-600"/>
-              
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-300">Gold:</span>
+              <hr className="my-2 border-gray-600" />
+
+              <div className="flex justify-between gap-4">
+                <span className="font-semibold text-gray-300">{t('gold')}</span>
                 {results.gold ? (
-                  <span>{results.gold.ounces.toFixed(4)} oz / {results.gold.grams.toFixed(2)} g</span>
+                  <span>
+                    {results.gold.ounces.toFixed(4)} oz / {results.gold.grams.toFixed(2)} g
+                  </span>
                 ) : (
-                  <span className="text-red-400">Price data unavailable for Gold</span>
+                  <span className="text-red-400">{t('goldUnavailable')}</span>
                 )}
               </div>
 
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-300">Silver:</span>
+              <div className="flex justify-between gap-4">
+                <span className="font-semibold text-gray-300">{t('silver')}</span>
                 {results.silver ? (
-                  <span>{results.silver.ounces.toFixed(4)} oz / {results.silver.grams.toFixed(2)} g</span>
+                  <span>
+                    {results.silver.ounces.toFixed(4)} oz / {results.silver.grams.toFixed(2)}{' '}
+                    g
+                  </span>
                 ) : (
-                  <span className="text-red-400">Price data unavailable for Silver</span>
+                  <span className="text-red-400">{t('silverUnavailable')}</span>
                 )}
               </div>
             </div>
           )}
 
-          <div className="mt-4 text-xs text-center text-gray-500">
-            Prices provided by Twelve Data & FCS API. Not financial advice.
-          </div>
+          <div className="mt-4 text-xs text-center text-gray-500">{t('priceDisclaimer')}</div>
         </>
       )}
     </div>

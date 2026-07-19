@@ -1,26 +1,28 @@
-// app/calculator/page.tsx
+'use client';
+
 import AssetCalculator from '@/app/components/AssetCalculator';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function CalculatorPage() {
+  const { t, languageMeta } = useLanguage();
+
   return (
-    // --- ADDED: Same dark background and flex layout as the home page ---
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
-      <main className="w-full max-w-2xl">
-        {/* NAVIGATION BAR FOR CALCULATOR PAGE */}
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-4 pt-8">
+      <main className="w-full max-w-2xl" dir={languageMeta.dir}>
         <nav className="flex justify-center space-x-4 mb-6">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="px-4 py-2 bg-gray-700 text-gray-300 font-semibold rounded-md hover:bg-gray-600 hover:text-white transition-colors"
           >
-            &larr; Back to Oracle
+            {t('backToOracle')}
           </Link>
-          <a 
-            href="/calculator" 
+          <Link
+            href="/calculator"
             className="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md cursor-default"
           >
-            Calculator
-          </a>
+            {t('navCalculator')}
+          </Link>
         </nav>
 
         <AssetCalculator />
