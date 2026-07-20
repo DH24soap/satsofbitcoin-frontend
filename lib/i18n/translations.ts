@@ -58,6 +58,7 @@ export type TranslationKey =
   | 'veniceReady'
   | 'veniceVisit'
   | 'veniceInferenceFooter'
+  | 'veniceInferenceLink'
   | 'questionsRemaining'
   | 'questionsRemainingOne'
   | 'dailyLimitReached'
@@ -148,6 +149,7 @@ const en: Dict = {
   veniceReady: 'Ready to try Venice AI?',
   veniceVisit: 'Visit venice.ai',
   veniceInferenceFooter: 'Inference provided by Venice.ai',
+  veniceInferenceLink: 'Inference via Venice.ai',
   questionsRemaining: '{count} questions remaining today',
   questionsRemainingOne: '1 question remaining today',
   dailyLimitReached:

@@ -94,6 +94,7 @@ function AnimatedValue({
 }
 
 const QUICK_AMOUNTS_USD = [100, 500, 1000, 5000, 10000];
+const VENICE_REF_URL = 'https://venice.ai/chat?ref=pkIvLm';
 
 export default function AssetCalculator() {
   const { t, language, languageMeta } = useLanguage();
@@ -572,6 +573,16 @@ export default function AssetCalculator() {
           <div className="mt-6 text-xs text-center text-gray-500 leading-relaxed">
             {t('priceDisclaimer')}
           </div>
+          <p className="mt-3 text-center">
+            <a
+              href={VENICE_REF_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-500 hover:text-orange-400 transition-colors underline-offset-2 hover:underline"
+            >
+              {t('veniceInferenceLink')}
+            </a>
+          </p>
         </>
       )}
     </div>
