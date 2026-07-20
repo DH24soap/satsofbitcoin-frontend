@@ -578,7 +578,7 @@ export default function AssetCalculator() {
               href={VENICE_REF_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-gray-500 hover:text-orange-400 transition-colors underline-offset-2 hover:underline"
+              className="text-xs text-orange-400/80 hover:text-orange-400 transition-colors underline-offset-2 hover:underline"
             >
               {t('veniceInferenceLink')}
             </a>
