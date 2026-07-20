@@ -61,6 +61,7 @@ export type TranslationKey =
   | 'veniceVisit'
   | 'veniceInferenceFooter'
   | 'veniceInferenceLink'
+  | 'educationalDisclaimer'
   | 'questionsRemaining'
   | 'questionsRemainingOne'
   | 'dailyLimitReached'
@@ -144,16 +145,17 @@ const en: Dict = {
   silver: 'Silver:',
   goldUnavailable: 'Price data unavailable for Gold',
   silverUnavailable: 'Price data unavailable for Silver',
-  priceDisclaimer:
-    'Asset prices via market data providers. FX rates via open exchange-rate feeds. Not financial advice.',
+  priceDisclaimer: 'Asset prices via market data providers. FX rates via open exchange-rate feeds.',
   marketSourceCoingecko: 'Market data provided by CoinGecko',
   marketSourceTwelve: 'Market data provided by Twelve Data',
   marketSourceGeneric: 'Market data provided by live market feeds',
   veniceInferenceBy: 'Oracle / Satoshi inference provided by Venice AI',
   veniceReady: 'Ready to try Venice AI?',
-  veniceVisit: 'Visit venice.ai',
+  veniceVisit: 'Visit Venice.ai',
   veniceInferenceFooter: 'Inference provided by Venice.ai',
   veniceInferenceLink: 'Inference via Venice.ai',
+  educationalDisclaimer:
+    'Educational content only. Not financial advice. Not affiliated with Venice AI.',
   questionsRemaining: '{count} questions remaining today',
   questionsRemainingOne: '1 question remaining today',
   dailyLimitReached:

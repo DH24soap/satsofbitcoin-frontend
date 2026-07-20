@@ -11,9 +11,7 @@ export default function VenicePromo() {
     <section className="mt-8 mb-2 flex flex-col items-center text-center">
       <div className="w-full max-w-sm mb-2 border-t border-gray-700/80" aria-hidden />
 
-      <p className="mt-6 text-lg text-gray-300 font-medium tracking-wide">
-        {t('veniceReady')}
-      </p>
+      <p className="mt-6 text-lg text-gray-300 font-medium tracking-wide">{t('veniceReady')}</p>
 
       <a
         href={VENICE_REF_URL}
@@ -45,6 +43,14 @@ export default function VenicePromo() {
           {t('veniceVisit')}
         </span>
       </a>
+
+      <div className="w-full max-w-sm mt-8 mb-2 border-t border-gray-700/80" aria-hidden />
+
+      <p className="mt-5 text-xs text-gray-500 max-w-md leading-relaxed px-2">
+        {t('educationalDisclaimer')}
+      </p>
+
+      <div className="w-full max-w-sm mt-5 mb-2 border-t border-gray-700/80" aria-hidden />
     </section>
   );
 }

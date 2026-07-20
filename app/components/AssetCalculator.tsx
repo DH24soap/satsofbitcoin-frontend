@@ -570,10 +570,7 @@ export default function AssetCalculator() {
             </div>
           )}
 
-          <div className="mt-6 text-xs text-center text-gray-500 leading-relaxed">
-            {t('priceDisclaimer')}
-          </div>
-          <p className="mt-3 text-center">
+          <p className="mt-6 text-center">
             <a
               href={VENICE_REF_URL}
               target="_blank"
@@ -583,6 +580,18 @@ export default function AssetCalculator() {
               {t('veniceInferenceLink')}
             </a>
           </p>
+
+          <div className="w-full max-w-sm mx-auto mt-5 mb-2 border-t border-gray-700/80" aria-hidden />
+
+          <p className="mt-4 text-xs text-center text-gray-500 leading-relaxed px-2">
+            {t('educationalDisclaimer')}
+          </p>
+
+          <div className="w-full max-w-sm mx-auto mt-5 mb-2 border-t border-gray-700/80" aria-hidden />
+
+          <div className="mt-4 text-xs text-center text-gray-500 leading-relaxed">
+            {t('priceDisclaimer')}
+          </div>
         </>
       )}
     </div>
