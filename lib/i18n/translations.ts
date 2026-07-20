@@ -30,6 +30,8 @@ export type TranslationKey =
   | 'marketDataBy'
   | 'supportTitle'
   | 'supportBody'
+  | 'showDonationDetails'
+  | 'hideDonationDetails'
   | 'copy'
   | 'copied'
   | 'qrAlt'
@@ -120,6 +122,8 @@ const en: Dict = {
   marketDataBy: 'Market data provided by',
   supportTitle: 'Support the Oracle',
   supportBody: 'Enjoying the Satoshi Oracle? Consider a small donation to keep it running.',
+  showDonationDetails: 'Show Lightning QR & address',
+  hideDonationDetails: 'Hide donation details',
   copy: 'Copy',
   copied: 'Copied!',
   qrAlt: 'Lightning Donation QR Code',
@@ -142,10 +146,10 @@ const en: Dict = {
   silverUnavailable: 'Price data unavailable for Silver',
   priceDisclaimer:
     'Asset prices via market data providers. FX rates via open exchange-rate feeds. Not financial advice.',
-  marketSourceCoingecko: 'Market data provided by',
-  marketSourceTwelve: 'Market data provided by',
+  marketSourceCoingecko: 'Market data provided by CoinGecko',
+  marketSourceTwelve: 'Market data provided by Twelve Data',
   marketSourceGeneric: 'Market data provided by live market feeds',
-  veniceInferenceBy: 'Inference for the Oracle / Satoshi provided by Venice AI',
+  veniceInferenceBy: 'Oracle / Satoshi inference provided by Venice AI',
   veniceReady: 'Ready to try Venice AI?',
   veniceVisit: 'Visit venice.ai',
   veniceInferenceFooter: 'Inference provided by Venice.ai',

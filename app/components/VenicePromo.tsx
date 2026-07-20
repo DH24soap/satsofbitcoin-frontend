@@ -9,7 +9,7 @@ export default function VenicePromo() {
 
   return (
     <section className="mt-10 mb-2 flex flex-col items-center text-center">
-      <p className="text-sm text-gray-400 max-w-md leading-relaxed">
+      <p className="text-sm text-orange-400/80 max-w-md leading-relaxed">
         {t('veniceInferenceBy')}
       </p>
 

@@ -645,33 +645,11 @@ export default function Home() {
         </div>
 
         <p className="text-center text-gray-500 text-sm mt-8">
-          {marketSource === 'coingecko' ? (
-            <>
-              {t('marketSourceCoingecko')}{' '}
-              <a
-                href="https://www.coingecko.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-orange-500 hover:underline"
-              >
-                CoinGecko
-              </a>
-            </>
-          ) : marketSource === 'twelvedata' ? (
-            <>
-              {t('marketSourceTwelve')}{' '}
-              <a
-                href="https://twelvedata.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-orange-500 hover:underline"
-              >
-                Twelve Data
-              </a>
-            </>
-          ) : (
-            t('marketSourceGeneric')
-          )}
+          {marketSource === 'coingecko'
+            ? t('marketSourceCoingecko')
+            : marketSource === 'twelvedata'
+              ? t('marketSourceTwelve')
+              : t('marketSourceGeneric')}
         </p>
 
         <VenicePromo />
