@@ -645,7 +645,7 @@ export default function Home() {
         </div>
 
         <p className="text-center text-sm text-orange-400/80 mt-8 max-w-md mx-auto leading-relaxed">
-          {t('veniceInferenceBy')}
+          {t('veniceInferenceLink')}
         </p>
         <p className="text-center text-gray-500 text-sm mt-2">
           {marketSource === 'coingecko'
