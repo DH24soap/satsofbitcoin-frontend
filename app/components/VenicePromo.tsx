@@ -8,12 +8,8 @@ export default function VenicePromo() {
   const { t } = useLanguage();
 
   return (
-    <section className="mt-10 mb-2 flex flex-col items-center text-center">
-      <p className="text-sm text-orange-400/80 max-w-md leading-relaxed">
-        {t('veniceInferenceBy')}
-      </p>
-
-      <div className="w-full max-w-sm mt-8 mb-2 border-t border-gray-700/80" aria-hidden />
+    <section className="mt-8 mb-2 flex flex-col items-center text-center">
+      <div className="w-full max-w-sm mb-2 border-t border-gray-700/80" aria-hidden />
 
       <p className="mt-6 text-lg text-gray-300 font-medium tracking-wide">
         {t('veniceReady')}
